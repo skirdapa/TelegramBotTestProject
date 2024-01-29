@@ -29,7 +29,7 @@ public static class DB
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Console.WriteLine($"Произошло исключение: \n{e}");
             return 0;
         }
     }

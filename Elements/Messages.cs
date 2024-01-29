@@ -1,3 +1,4 @@
+using OpenAI_API.Chat;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -14,6 +15,13 @@ public static class Messages
             $"Добро пожаловать, {message.Chat.FirstName ?? message.Chat.Username}!");
     }
 
+    public static async void GetNewMessageFromGPT(Message message, Conversation chat, string userName)
+    {
+        var keyboard = MakeButtonsMarkup(Buttons.Main);
+        await TgBot.Bot.SendTextMessageAsync(message.Chat,
+            await OpenAIHandler.GetAnswer(chat, message.Text!, userName), replyMarkup: keyboard);
+    }
+
     public static async void SendUsers(Message message)
     {
         await TgBot.Bot.SendTextMessageAsync(message.Chat,
@@ -22,7 +30,7 @@ public static class Messages
 
     public static async void SendMainMessage(Message message)
     {
-        var keyboard = MakeButtonsMarkup(Buttons.One, Buttons.Two, Buttons.GetJoke, Buttons.GetCatGif);
+        var keyboard = MakeButtonsMarkup(Buttons.StartChat, Buttons.Two, Buttons.GetJoke, Buttons.GetCatGif);
         await TgBot.Bot.SendTextMessageAsync(
             message.Chat,
             "Сделай свой выбор",

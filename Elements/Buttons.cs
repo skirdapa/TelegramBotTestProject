@@ -6,9 +6,9 @@ public static class Buttons
 {
     public static InlineKeyboardButton Main =
         InlineKeyboardButton.WithCallbackData(text: "На главную", callbackData: "main");
-    
-    public static InlineKeyboardButton One =
-        InlineKeyboardButton.WithCallbackData(text: "Кнопка 1", callbackData: "button1");
+
+    public static InlineKeyboardButton StartChat =
+        InlineKeyboardButton.WithCallbackData(text: "Вызов ЧатГпт", callbackData: "ChatGpt");
     public static InlineKeyboardButton Two =
         InlineKeyboardButton.WithCallbackData(text: "Кнопка 2", callbackData: "button2");
 

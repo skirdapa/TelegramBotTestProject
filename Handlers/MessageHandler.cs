@@ -1,3 +1,4 @@
+using OpenAI_API.Chat;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using TelegramBotTestProject.Constants;
@@ -10,11 +11,14 @@ namespace TelegramBotTestProject.Handlers;
 
 public static class MessageHandler
 {
+    private static bool ChatMode = false;
+    private static Dictionary<string, Conversation> Chats = new Dictionary<string, Conversation>();
+
     public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
         Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(update));
-        if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
+        if (update.Type == UpdateType.Message)
         {
             var message = update.Message ?? new Message { Text = "" };
             if (message.Text!.ToLower() == "/start")
@@ -29,8 +33,7 @@ public static class MessageHandler
                 Messages.SendUsers(message);
                 return;
             }
-
-            Messages.SendMainMessage(message);
+            HandleMessage(message);
         }
 
         if (update.Type == UpdateType.CallbackQuery)
@@ -40,9 +43,10 @@ public static class MessageHandler
             {
                 Messages.SendMainMessage(update.CallbackQuery.Message!);
             }
-            if (codeOfButton == "button1")
+            if (codeOfButton == "ChatGpt")
             {
-                Messages.UpdateMessage(update.CallbackQuery.Message!, "Вы нажали кнопку 1");
+                Messages.UpdateMessage(update.CallbackQuery.Message!, "Вы могли бы начать диалог с чатом ГПТ, но опен АИ просит за всё бабло");
+                ChatMode = false;
             }
 
             if (codeOfButton == "button2")
@@ -66,6 +70,27 @@ public static class MessageHandler
         CancellationToken cancellationToken)
     {
         Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(exception));
+    }
+
+    private static async void HandleMessage(Message message)
+    {
+        if (ChatMode)
+        {
+            if (Chats.ContainsKey(message.Chat.Username!))
+            {
+                await OpenAIHandler.GetAnswer(Chats[message.Chat.Username!], message.Text!);
+            }
+            else
+            {
+                Chats[message.Chat.Username!] = OpenAIHandler.CreateConversation();
+                await OpenAIHandler.GetAnswer(Chats[message.Chat.Username!], message.Text!);
+            }
+        }
+        else
+        {
+            Chats.Remove(message.Chat.Username!);
+            Messages.SendMainMessage(message);
+        }
     }
 
     private static int SaveUser(Message message)
